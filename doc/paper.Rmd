@@ -8,6 +8,8 @@ author: |
   | TRR 266 Accounting for Transparency
   | Humboldt-Universität zu Berlin 
   | gassen@wiwi.hu-berlin.de
+  | Ulrich Atz
+  | New York University
 
 date: |
   | `r loc <- Sys.getlocale(category = "LC_TIME"); Sys.setlocale("LC_TIME", "C"); fdate <- format(Sys.time(), '%B %e, %Y'); Sys.setlocale("LC_TIME", loc); fdate` \vspace{1cm}
@@ -61,9 +63,8 @@ load("../output/results.rda")
 \pagebreak
 
 # Introduction
-  
-This is not a paper but a stub that is part of a [project template repository](https://github.com/trr266/treat). We developed this repository to provide a prototype for a reproducible and collaborative workflow. Several authors have discussed advantages of such workflows (@W_2017, @GGR_2018, @CFM_2019) and many scholars across fields have voiced the need for increased reproducibility in science (e.g., @I_2005, @GL_2014, @DPR_2017).
 
+This is not a paper but a stub that is part of a [project template repository](https://github.com/trr266/treat). We developed this repository to provide a prototype for a reproducible and collaborative workflow. Several authors have discussed advantages of such workflows (@W_2017, @GGR_2018, @CFM_2019) and many scholars across fields have voiced the need for increased reproducibility in science (e.g., @I_2005, @GL_2014, @DPR_2017).
 
 # Discretionary Accruals
 
@@ -71,16 +72,24 @@ To demonstrate our workflow, we explore discretionary accruals across the U.S. W
 
 \ref{tab:descriptives} presents our data that is based on a simple WRDS pull of Compustat data with financial firms (SIC 6XXX) excluded. We require data to calculate all variables and this drastically reduces the sample size. Modified Jones discretionary accruals are calculated loosely based on @HN_2007 and Dechow and Dichev discretionary accruals are calculated based on (big surprise) @DD_2002. As you will see from \ref{fig:boxplot_smp}, discretionary accruals are very noisy constructs, even after limiting the sample to observations with complete data and winsorizing all data to the top and bottom percentile for each year. Figure \ref{fig:scatter_dd_lnta} shows a very prominent heteroscedasticity of discretionary accruals with regards to size. While researchers have tried to address this problem, the distributional properties of these constructs significantly complicate the interpretation of discretionary accrual-related findings. Especially in high powered settings, the measurement error, being highly correlated with size, will tend to load on variables that are unrelated to the underlying economic construct but correlated with size. \ref{tab:corr} shows some correlations and \ref{tab:reg} shows some completely pointless regressions.
 
+# Discretionary Accruals, revisited
+
+The shortcomings of the traditional accrual models are well documented and recently scholars have proposed hierarchical methods [@breuer2019a].
+
+
+
+
+
+
+
 
 ```{r BoxPlot, echo = FALSE, fig.align="center", fig.cap="\\label{fig:boxplot_smp}Distribution of Discretionary Accruals over Time"}
 fig_boxplot_smp
 ```
 
-
 ```{r Scatter, echo = FALSE, fig.align="center", fig.cap="\\label{fig:scatter_dd_lnta}Dechow and Dichev DA and Firm Size"}
 fig_scatter_dd_lnta
 ```
-
 
 ```{r tab_descriptives_sample, results="asis"}
 desc_rnames <- paste0("\\textit{", var_names$label, "}")
@@ -123,7 +132,7 @@ latex_tab <- c(
 cat(paste(latex_tab, collapse = "\n"))  
 ```
 
-``` {r CorrTable, results="asis"}
+```{r CorrTable, results="asis"}
 tab <- tab_corr
 lat_tab <- unlist(strsplit(tab$kable_ret, "\n"))
 lat_tab[7:13] <- str_replace(
@@ -144,8 +153,7 @@ latex_tab <- c(
 cat(paste(latex_tab, collapse = "\n"))
 ```
 
-
-``` {r RegTable, results="asis"}
+```{r RegTable, results="asis"}
 tab <- tab_regression$table
 tab[12] <- paste(
   "\\\\[-1.8ex] &", var_names$label[1], 
@@ -180,11 +188,15 @@ Isn't that wonderful? Discretionary accruals rock but what rocks even more is op
 
 \pagebreak
 
+```{=tex}
 \setcounter{table}{0}
 \renewcommand{\thetable}{\arabic{table}}
+```
+# References {.unnumbered}
 
-# References {-}
+```{=tex}
 \setlength{\parindent}{-0.2in}
 \setlength{\leftskip}{0.2in}
 \setlength{\parskip}{8pt}
+```
 \noindent
