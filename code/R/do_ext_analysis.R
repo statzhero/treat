@@ -13,9 +13,9 @@
 library(tidyverse)
 library(lme4)
 
-library(haven)
-library(rstan)
-options(mc.cores = parallel::detectCores())
+# library(haven)
+# library(rstan)
+# options(mc.cores = parallel::detectCores())
 
 
 # Load data
@@ -61,7 +61,7 @@ mjh2 <- lmer(tacc ~ -1 + inverse_a + drev + ppe +
 #                (inverse_a + drev + ppe | fyear), 
 #              dta)
 
-mjh_da <- dta %>% 
+mjh_da <- us_base_sample %>% 
   ungroup %>% 
   mutate(tacc_hat = predict(mjh),
          mjh_da = tacc - tacc_hat) %>% 
