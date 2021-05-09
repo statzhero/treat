@@ -72,6 +72,8 @@ if(nrow(dup_obs) > 0) stop(
   "Duplicate firm-year observations in Compustat data, stored in 'dup_obs'."
 )
 
+saveRDS(us_base_sample, "data/generated/us_base_sample.rds")
+
 
 # --- Calculate modified Jones model accruals and statistics -------------------
 
@@ -223,14 +225,14 @@ smp<- expand_grid(
     mj_ada = abs(mj_da),
     dd_ada = abs(dd_da) 
   ) 
-  # select(
-  #   gvkey, conm, fyear, ff12_ind, ff48_ind,
-  #   ta, sales, mktcap, ln_ta, ln_sales, ln_mktcap,
-  #   mj_da, dd_da, mj_ada, dd_ada, mj_nobs, dd_nobs,
-  #   mtb, sales_growth, leverage,
-  #   ppe_ta, int_ta, gwill_ta, ceq_ta, leverage, 
-  #   acq_sales, cogs_sales, ebit_sales, 
-  #   ebit_avgta, cfo_avgta, tacc_avgta
-  # ) %>% filter(!is.na(mj_da))
+  select(
+    gvkey, conm, fyear, ff12_ind, ff48_ind,
+    ta, sales, mktcap, ln_ta, ln_sales, ln_mktcap,
+    mj_da, dd_da, mj_ada, dd_ada, mj_nobs, dd_nobs,
+    mtb, sales_growth, leverage,
+    ppe_ta, int_ta, gwill_ta, ceq_ta, leverage,
+    acq_sales, cogs_sales, ebit_sales,
+    ebit_avgta, cfo_avgta, tacc_avgta
+  ) %>% filter(!is.na(mj_da))
 
 saveRDS(smp, "data/generated/acc_sample.rds")

@@ -8,8 +8,11 @@ author: |
   | TRR 266 Accounting for Transparency
   | Humboldt-Universität zu Berlin 
   | gassen@wiwi.hu-berlin.de
+  |
   | Ulrich Atz
   | New York University
+  | Stern School of Business
+  | ua6@stern.nyu.edu
 
 date: |
   | `r loc <- Sys.getlocale(category = "LC_TIME"); Sys.setlocale("LC_TIME", "C"); fdate <- format(Sys.time(), '%B %e, %Y'); Sys.setlocale("LC_TIME", loc); fdate` \vspace{1cm}
@@ -51,6 +54,7 @@ library(tidyverse)
 library(knitr)
 library(ExPanDaR)
 library(kableExtra)
+library(patchwork)
 opts_chunk$set(fig.pos = 'p') # Places figures on their own pages
 opts_chunk$set(out.width = '100%', dpi=300)
 opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, cache = FALSE)
@@ -74,14 +78,15 @@ To demonstrate our workflow, we explore discretionary accruals across the U.S. W
 
 # Discretionary Accruals, revisited
 
-The shortcomings of the traditional accrual models are well documented and recently scholars have proposed hierarchical methods [@breuer2019a].
+The shortcomings of the traditional accrual models are well documented, for example, @ball2013 questions whether the standard models for discretionary accruals measure what they promise to do. Recently, scholars have proposed a Bayesian methodology [@breuer2019a] to address some aspects (such as extreme estimates and false positives) of this criticism. The core idea, "borrowing strength" as statisticians call it, i.e. shrinking extreme parameters toward a more reasonable grand mean, may also be achieved be classic frequentist methods such as hierarchical models (also known as mulitlevel or mixed model). They come at a computational cost that are orders of magnitude cheaper.
 
+Figure \ref{fig_boxplot_coef} shows how the two model approaches compare in their size of coefficients for each industry-year. As discussed, the larger outliers in the traditional approach (one regression for each group) are subdued in the hierarchical approach.
 
+This desirable feature comes at a cost. We are only estimating a dozen parameters instead of more than a thousand, so that the in-sample predictions are perhaps wores. \ref{fig:boxplot_mjh} and \ref{fig:scatter_mjh} show how the modified Jones model agrees with the hierarchical Jones model in their point estimates for discretionary accruals. Contrary to expectation, the hierarchical model exhibits larger extreme values. We speculate this could also be due to a convergence issue of the model. The R package we employed is `lme4` [@bates2015].
 
+Firm-level estimates were often not available because they require a sufficient number of observations per firm. With the hierarchical model we mitigate this issue. \ref{fig_boxplot_coef2} shows how the firm-level model  compares in their size of coefficients to the classic modified Jones model. Again, the larger outliers in the traditional approach (one regression for each group) are subdued in the hierarchical approach. The point estimates are again larger than before (\ref{fig:boxplot_mjh2} and \ref{fig:scatter_mjh2}). 
 
-
-
-
+Finally, it may be possible to combine the benefits of a hierarchical approach with the benefits of estimating many parameters in a Bayesian model that specifies weak prior information. We outline this approach in the code, but do not present the results as they require further fine-tuning to be interpretable. 
 
 ```{r BoxPlot, echo = FALSE, fig.align="center", fig.cap="\\label{fig:boxplot_smp}Distribution of Discretionary Accruals over Time"}
 fig_boxplot_smp
@@ -90,6 +95,34 @@ fig_boxplot_smp
 ```{r Scatter, echo = FALSE, fig.align="center", fig.cap="\\label{fig:scatter_dd_lnta}Dechow and Dichev DA and Firm Size"}
 fig_scatter_dd_lnta
 ```
+
+```{r , echo = FALSE, fig.align="center", fig.cap="\\label{fig:coef_mjh} Regression coefficients for the modified Jones model and its hierarchical equivalent (industry-year)"}
+fig_boxplot_coef
+```
+
+```{r , echo = FALSE, fig.align="center", fig.cap="\\label{fig:boxplot_mjh}Distribution of Discretionary Accruals over Time, revisited"}
+fig_boxplot_hier
+```
+
+```{r , echo = FALSE, fig.align="center", fig.cap="\\label{fig:scatter_mjh} Correlation between the modified Jones model and its hierarchical equivalent"}
+fig_scatter_md_mjh
+```
+
+
+```{r , echo = FALSE, fig.align="center", fig.cap="\\label{fig:coef_mjh2} Regression coefficients for the modified Jones model and its hierarchical equivalent (firm-level)"}
+fig_boxplot_coef2
+```
+
+```{r , echo = FALSE, fig.align="center", fig.cap="\\label{fig:boxplot_mjh2}Distribution of Discretionary Accruals over Time, revisited (firm-level)"}
+fig_boxplot_hier2
+```
+
+```{r , echo = FALSE, fig.align="center", fig.cap="\\label{fig:scatter_mjh2} Correlation between the modified Jones model and its hierarchical equivalent (firm-level"}
+fig_scatter_md_mjh2
+```
+
+
+
 
 ```{r tab_descriptives_sample, results="asis"}
 desc_rnames <- paste0("\\textit{", var_names$label, "}")

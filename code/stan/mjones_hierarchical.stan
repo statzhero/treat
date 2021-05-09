@@ -37,19 +37,19 @@ model{
   tau ~ exponential(1);
   TA ~ normal(rows_dot_product(b[IndYearID] , x), sigma);
 }
-generated quantities {
-  vector[N] y_fit_wo;
-  vector[N] y_fit;
-  vector[N] log_lik;
-  for ( i in 1:N ) {
-    y_fit[i] = normal_rng(b[IndYearID[i], 1] * x[i,1] +
-                          b[IndYearID[i], 2] * x[i,2] +
-                          b[IndYearID[i], 3] * x[i,3], sigma);
-    y_fit_wo[i] = b[IndYearID[i], 1] * x[i,1] +
-                  b[IndYearID[i], 2] * x[i,2] +
-                  b[IndYearID[i], 3] * x[i,3];
-    log_lik[i] = normal_lpdf(TA[i] | b[IndYearID[i], 1] * x[i,1] +
-                                     b[IndYearID[i], 2] * x[i,2] +
-                                     b[IndYearID[i], 3] * x[i,3], sigma);
-  }
-}
+// generated quantities {
+  // vector[N] y_fit_wo;
+  // vector[N] y_fit;
+  // vector[N] log_lik;
+  // for ( i in 1:N ) {
+  //  y_fit_wo[i] = b[IndYearID[i], 1] * x[i,1] +
+  //                b[IndYearID[i], 2] * x[i,2] +
+  //                b[IndYearID[i], 3] * x[i,3];
+  //  y_fit[i] = normal_rng(b[IndYearID[i], 1] * x[i,1] +
+  //                        b[IndYearID[i], 2] * x[i,2] +
+  //                        b[IndYearID[i], 3] * x[i,3], sigma);
+  //  log_lik[i] = normal_lpdf(TA[i] | b[IndYearID[i], 1] * x[i,1] +
+  //                                   b[IndYearID[i], 2] * x[i,2] +
+  //                                   b[IndYearID[i], 3] * x[i,3], sigma);
+  //}
+//}

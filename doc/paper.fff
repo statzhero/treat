@@ -1,0 +1,78 @@
+\begin{figure}[p]
+
+{\centering \includegraphics[width=1\linewidth]{paper_files/figure-latex/BoxPlot-1}
+
+}
+
+\caption{\label{fig:boxplot_smp}Distribution of Discretionary Accruals over Time}\label{fig:BoxPlot}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[p]
+
+{\centering \includegraphics[width=1\linewidth]{paper_files/figure-latex/Scatter-1}
+
+}
+
+\caption{\label{fig:scatter_dd_lnta}Dechow and Dichev DA and Firm Size}\label{fig:Scatter}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[p]
+
+{\centering \includegraphics[width=1\linewidth]{paper_files/figure-latex/unnamed-chunk-1-1}
+
+}
+
+\caption{\label{fig:coef_mjh} Regression coefficients for the modified Jones model and its hierarchical equivalent (industry-year)}\label{fig:unnamed-chunk-1}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[p]
+
+{\centering \includegraphics[width=1\linewidth]{paper_files/figure-latex/unnamed-chunk-2-1}
+
+}
+
+\caption{\label{fig:boxplot_mjh}Distribution of Discretionary Accruals over Time, revisited}\label{fig:unnamed-chunk-2}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[p]
+
+{\centering \includegraphics[width=1\linewidth]{paper_files/figure-latex/unnamed-chunk-3-1}
+
+}
+
+\caption{\label{fig:scatter_mjh} Correlation between the modified Jones model and its hierarchical equivalent}\label{fig:unnamed-chunk-3}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[p]
+
+{\centering \includegraphics[width=1\linewidth]{paper_files/figure-latex/unnamed-chunk-4-1}
+
+}
+
+\caption{\label{fig:coef_mjh2} Regression coefficients for the modified Jones model and its hierarchical equivalent (firm-level)}\label{fig:unnamed-chunk-4}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[p]
+
+{\centering \includegraphics[width=1\linewidth]{paper_files/figure-latex/unnamed-chunk-5-1}
+
+}
+
+\caption{\label{fig:boxplot_mjh2}Distribution of Discretionary Accruals over Time, revisited (firm-level)}\label{fig:unnamed-chunk-5}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[p]
+
+{\centering \includegraphics[width=1\linewidth]{paper_files/figure-latex/unnamed-chunk-6-1}
+
+}
+
+\caption{\label{fig:scatter_mjh2} Correlation between the modified Jones model and its hierarchical equivalent (firm-level}\label{fig:unnamed-chunk-6}
+\end{figure}
