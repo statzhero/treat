@@ -173,81 +173,81 @@ save(
 
 # NOT RUN
 
-# Bayes Jones model -----------------
-# code that fits the model and saves output. 
-# Squeezed into one function:
-run_model <- function(modelname,
-                      filename,
-                      parameters,
-                      data) {
-  # fit model
-  fit <- stan(filename, data=input_data,
-              iter=2000, warmup=1000, chains=2, seed=20210507,
-              verbose=FALSE)
-  
-  # Save Results
-  # bayes_predicted <- as.matrix(fit, par="y_fit_wo")
-  # saveRDS(bayes_predicted, paste0("output/modelfits/", modelname, "-ta-coef-only-preds.rds"))
-
-  bayes_ind_coef <- as.matrix(fit, par="b")[2000, ]
-  write.csv(bayes_ind_coef, gzfile(paste0("output/modelfits/", modelname, "-coef.csv.gz")))
-
-  bayes_results <- as.matrix(fit, par=parameters)
-  write.csv(bayes_results, gzfile(paste0("output/modelfits/", modelname, "-results.csv.gz")))
-
-  sum_table <- summary(fit, pars=parameters)$summary
-  write.csv(sum_table, paste0("output/modelfits/", modelname, "-summary.csv"))
-  
-  for (para in parameters){
-    tp1 <- traceplot(fit, pars=c(para))
-    ggsave(filename = paste0("output/modelfits/", modelname, "-trace-", para, ".pdf"), plot = tp1)
-  }
-  
-  print(fit, par=parameters)
-  return(fit)
-}
-
-
-# Industry-year-varying coefficients model -----------------
-#' ---------------------------------------------------------
-# The Bayesian version allows the coefficients in the modified
-# Jones model to vary across industry and year based on the 
-# assumptions of the model. 
-
-min_obs <- 10
-
-dta <- us_base_sample %>% 
-  group_by(gvkey) %>% 
-  arrange(gvkey, fyear) %>% 
-  mutate(
-    lagta = dplyr::lag(at),
-    tacc = (ibc - oancf)/lagta,
-    drev = (sale - dplyr::lag(sale) + recch)/lagta,
-    inverse_a = 1/lagta,
-    ppe = ppegt/lagta
-  ) %>%
-  drop_na(tacc, drev, ppe) %>% 
-  select(gvkey, ff48_ind, fyear, tacc, drev, inverse_a, ppe) %>%
-  group_by(ff48_ind, fyear) %>%
-  filter(n() >= min_obs) %>%
-  winsorize(drop = "fyear") %>% 
-  fill(ff48_ind, .direction = "downup") %>% 
-  tidylog::drop_na(ff48_ind) %>% 
-  # ungroup %>%
-  #   tjmisc::sample_n_of(100, gvkey) %>%
-  group_by(fyear, ff48_ind) %>% 
-  mutate(IndYearID = interaction(ff48_ind, fyear),
-         IndYearID = as.numeric(IndYearID))
-
-
-modelname <- "mjones_hierarchical"
-filename <- "code/stan/mjones_hierarchical.stan"
-model_vars <- c("inverse_a", "drev", "ppe")
-parameters <- c("mu_b", "sigma", "L_Omega", "tau")
-input_data = list(TA = dta$tacc,
-                  x = dta[, model_vars],
-                  N = nrow(dta),
-                  J = max(dta$IndYearID),
-                  K = length(model_vars),
-                  IndYearID = dta$IndYearID)
-fit <- run_model(modelname, filename, parameters, input_data)
+#' # Bayes Jones model -----------------
+#' # code that fits the model and saves output. 
+#' # Squeezed into one function:
+#' run_model <- function(modelname,
+#'                       filename,
+#'                       parameters,
+#'                       data) {
+#'   # fit model
+#'   fit <- stan(filename, data=input_data,
+#'               iter=2000, warmup=1000, chains=2, seed=20210507,
+#'               verbose=FALSE)
+#'   
+#'   # Save Results
+#'   # bayes_predicted <- as.matrix(fit, par="y_fit_wo")
+#'   # saveRDS(bayes_predicted, paste0("output/modelfits/", modelname, "-ta-coef-only-preds.rds"))
+#' 
+#'   bayes_ind_coef <- as.matrix(fit, par="b")[2000, ]
+#'   write.csv(bayes_ind_coef, gzfile(paste0("output/modelfits/", modelname, "-coef.csv.gz")))
+#' 
+#'   bayes_results <- as.matrix(fit, par=parameters)
+#'   write.csv(bayes_results, gzfile(paste0("output/modelfits/", modelname, "-results.csv.gz")))
+#' 
+#'   sum_table <- summary(fit, pars=parameters)$summary
+#'   write.csv(sum_table, paste0("output/modelfits/", modelname, "-summary.csv"))
+#'   
+#'   for (para in parameters){
+#'     tp1 <- traceplot(fit, pars=c(para))
+#'     ggsave(filename = paste0("output/modelfits/", modelname, "-trace-", para, ".pdf"), plot = tp1)
+#'   }
+#'   
+#'   print(fit, par=parameters)
+#'   return(fit)
+#' }
+#' 
+#' 
+#' # Industry-year-varying coefficients model -----------------
+#' #' ---------------------------------------------------------
+#' # The Bayesian version allows the coefficients in the modified
+#' # Jones model to vary across industry and year based on the 
+#' # assumptions of the model. 
+#' 
+#' min_obs <- 10
+#' 
+#' dta <- us_base_sample %>% 
+#'   group_by(gvkey) %>% 
+#'   arrange(gvkey, fyear) %>% 
+#'   mutate(
+#'     lagta = dplyr::lag(at),
+#'     tacc = (ibc - oancf)/lagta,
+#'     drev = (sale - dplyr::lag(sale) + recch)/lagta,
+#'     inverse_a = 1/lagta,
+#'     ppe = ppegt/lagta
+#'   ) %>%
+#'   drop_na(tacc, drev, ppe) %>% 
+#'   select(gvkey, ff48_ind, fyear, tacc, drev, inverse_a, ppe) %>%
+#'   group_by(ff48_ind, fyear) %>%
+#'   filter(n() >= min_obs) %>%
+#'   winsorize(drop = "fyear") %>% 
+#'   fill(ff48_ind, .direction = "downup") %>% 
+#'   tidylog::drop_na(ff48_ind) %>% 
+#'   # ungroup %>%
+#'   #   tjmisc::sample_n_of(100, gvkey) %>%
+#'   group_by(fyear, ff48_ind) %>% 
+#'   mutate(IndYearID = interaction(ff48_ind, fyear),
+#'          IndYearID = as.numeric(IndYearID))
+#' 
+#' 
+#' modelname <- "mjones_hierarchical"
+#' filename <- "code/stan/mjones_hierarchical.stan"
+#' model_vars <- c("inverse_a", "drev", "ppe")
+#' parameters <- c("mu_b", "sigma", "L_Omega", "tau")
+#' input_data = list(TA = dta$tacc,
+#'                   x = dta[, model_vars],
+#'                   N = nrow(dta),
+#'                   J = max(dta$IndYearID),
+#'                   K = length(model_vars),
+#'                   IndYearID = dta$IndYearID)
+#' fit <- run_model(modelname, filename, parameters, input_data)
