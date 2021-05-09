@@ -29,7 +29,33 @@ smp_da <- smp %>%
 smp_da <- smp_da[is.finite(rowSums(smp_da %>% select(-gvkey, -ff12_ind))),]
 smp_da <- ExPanDaR::treat_outliers(smp_da, by = "fyear")
 
+# Prep data
 us_base_sample <- readRDS("data/generated/us_base_sample.rds")
+
+min_obs <- 10
+
+dta <- us_base_sample %>%
+  group_by(gvkey) %>%
+  arrange(gvkey, fyear) %>%
+  mutate(
+    lagta = dplyr::lag(at),
+    tacc = (ibc - oancf)/lagta,
+    drev = (sale - dplyr::lag(sale) + recch)/lagta,
+    inverse_a = 1/lagta,
+    ppe = ppegt/lagta
+  ) %>%
+  drop_na(tacc, drev, ppe) %>%
+  select(gvkey, ff48_ind, fyear, tacc, drev, inverse_a, ppe) %>%
+  group_by(ff48_ind, fyear) %>%
+  filter(n() >= min_obs) %>%
+  winsorize(drop = "fyear") %>%
+  fill(ff48_ind, .direction = "downup") %>%
+  tidylog::drop_na(ff48_ind) %>%
+  # ungroup %>%
+  #   tjmisc::sample_n_of(100, gvkey) %>%
+  group_by(fyear, ff48_ind) %>%
+  mutate(IndYearID = interaction(ff48_ind, fyear),
+         IndYearID = as.numeric(IndYearID))
 
 # Functions
 winsorize <- function(df, drop = NULL, ...) {
@@ -61,7 +87,7 @@ mjh2 <- lmer(tacc ~ -1 + inverse_a + drev + ppe +
 #                (inverse_a + drev + ppe | fyear), 
 #              dta)
 
-mjh_da <- us_base_sample %>% 
+mjh_da <- dta %>% 
   ungroup %>% 
   mutate(tacc_hat = predict(mjh),
          mjh_da = tacc - tacc_hat) %>% 
@@ -213,31 +239,7 @@ save(
 #' # The Bayesian version allows the coefficients in the modified
 #' # Jones model to vary across industry and year based on the 
 #' # assumptions of the model. 
-#' 
-#' min_obs <- 10
-#' 
-#' dta <- us_base_sample %>% 
-#'   group_by(gvkey) %>% 
-#'   arrange(gvkey, fyear) %>% 
-#'   mutate(
-#'     lagta = dplyr::lag(at),
-#'     tacc = (ibc - oancf)/lagta,
-#'     drev = (sale - dplyr::lag(sale) + recch)/lagta,
-#'     inverse_a = 1/lagta,
-#'     ppe = ppegt/lagta
-#'   ) %>%
-#'   drop_na(tacc, drev, ppe) %>% 
-#'   select(gvkey, ff48_ind, fyear, tacc, drev, inverse_a, ppe) %>%
-#'   group_by(ff48_ind, fyear) %>%
-#'   filter(n() >= min_obs) %>%
-#'   winsorize(drop = "fyear") %>% 
-#'   fill(ff48_ind, .direction = "downup") %>% 
-#'   tidylog::drop_na(ff48_ind) %>% 
-#'   # ungroup %>%
-#'   #   tjmisc::sample_n_of(100, gvkey) %>%
-#'   group_by(fyear, ff48_ind) %>% 
-#'   mutate(IndYearID = interaction(ff48_ind, fyear),
-#'          IndYearID = as.numeric(IndYearID))
+
 #' 
 #' 
 #' modelname <- "mjones_hierarchical"
