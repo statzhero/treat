@@ -18,7 +18,20 @@ library(lme4)
 # options(mc.cores = parallel::detectCores())
 
 
+# Functions
+winsorize <- function(df, drop = NULL, ...) {
+  if(is.null(drop)) ExPanDaR::treat_outliers(df, ...)
+  else {
+    vars <- !(names(df) %in% drop)
+    ret <- df
+    ret[vars] <- ExPanDaR::treat_outliers(ret[vars], ...)
+    return(ret)
+  }
+}
+
+
 # Load data
+# Check ta !
 source("code/R/theme_trr.R")
 smp <- readRDS("data/generated/acc_sample.rds") 
 smp_da <- smp %>%
@@ -27,7 +40,7 @@ smp_da <- smp %>%
     ebit_avgta, sales_growth
   ) 
 smp_da <- smp_da[is.finite(rowSums(smp_da %>% select(-gvkey, -ff12_ind))),]
-smp_da <- ExPanDaR::treat_outliers(smp_da, by = "fyear")
+# smp_da <- ExPanDaR::treat_outliers(smp_da, by = "fyear")
 
 # Prep data
 us_base_sample <- readRDS("data/generated/us_base_sample.rds")
@@ -48,7 +61,7 @@ dta <- us_base_sample %>%
   select(gvkey, ff48_ind, fyear, tacc, drev, inverse_a, ppe) %>%
   group_by(ff48_ind, fyear) %>%
   filter(n() >= min_obs) %>%
-  winsorize(drop = "fyear") %>%
+  winsorize(drop = "fyear", truncate = FALSE) %>%
   fill(ff48_ind, .direction = "downup") %>%
   tidylog::drop_na(ff48_ind) %>%
   # ungroup %>%
@@ -56,18 +69,6 @@ dta <- us_base_sample %>%
   group_by(fyear, ff48_ind) %>%
   mutate(IndYearID = interaction(ff48_ind, fyear),
          IndYearID = as.numeric(IndYearID))
-
-# Functions
-winsorize <- function(df, drop = NULL, ...) {
-  if(is.null(drop)) ExPanDaR::treat_outliers(df, ...)
-  else {
-    vars <- !(names(df) %in% drop)
-    ret <- df
-    ret[vars] <- ExPanDaR::treat_outliers(ret[vars], ...)
-    return(ret)
-  }
-}
-
 
 
 # Hierarchical Jones model -----------------
@@ -78,9 +79,15 @@ mjh <- lmer(tacc ~ -1 + inverse_a + drev + ppe +
               (inverse_a + drev + ppe | IndYearID), 
             dta)
 
+system.time(
 mjh2 <- lmer(tacc ~ -1 + inverse_a + drev + ppe +
               (inverse_a + drev + ppe | gvkey), 
             dta)
+)
+
+# residuals(mjh2) %>% qqnorm
+# residuals(mjh2) %>% qqline
+# lattice::qqmath(mjh2)
 
 # mjh2 <- lmer(tacc ~ -1 + inverse_a + drev + ppe +
 #                (inverse_a + drev + ppe | ff48_ind) +
@@ -93,7 +100,24 @@ mjh_da <- dta %>%
          mjh_da = tacc - tacc_hat) %>% 
   mutate(tacc_hat2 = predict(mjh2),
          mjh_da2 = tacc - tacc_hat2) %>% 
-  select(gvkey, fyear, mjh_da, mjh_da2)
+  select(gvkey, fyear, mjh_da, mjh_da2, 
+         tacc, tacc_hat, tacc_hat2)
+
+
+# Correlations----------------------
+mjh_da %>% 
+  left_join(mj, by = c("gvkey", "fyear")) %>%
+  select(tacc, mj_da) %>% 
+  mutate(ta_hat = tacc - mj_da) %>% 
+  tidylog::drop_na() %>% 
+  cor
+
+cor(mjh_da$tacc, mjh_da$tacc_hat)
+cor(mjh_da$tacc, mjh_da$mjh_da)
+
+cor(mjh_da$tacc, mjh_da$tacc_hat2)
+cor(mjh_da$tacc, mjh_da$mjh_da2)
+
 
 # Figures----------------------
 smp_ext <- smp_da %>% 
